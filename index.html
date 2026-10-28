@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070d19"><title>ETL · XGO Hand Pilot</title>
+<link rel="stylesheet" href="./static/vr.css"></head>
+<body>
+<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+<main class="wrap">
+  <header class="header">
+    <div class="logotype"><div class="brandicon">✦</div><div><div class="tagline">AUPP · EMERGING TECHNOLOGY LAB</div><h1>XGO <em>HAND PILOT</em></h1></div></div>
+    <div id="linkChip" class="chip"><span class="dot"></span><span id="linkText">CONNECTING</span></div>
+  </header>
+  <section class="hero">
+    <div class="hero-kicker"><span class="glyph">◈</span> QUEST 3 · MIXED REALITY CONTROL <span class="beta">AUTO MODE V2</span></div>
+    <h2>No virtual world.<br><span>Just your hands and a real robot.</span></h2>
+    <p>Look at your XGO Mini through Meta Quest 3 passthrough. Hold a pinch with your left hand and point your right index finger to move it. Let go and it stops.</p>
+    <div class="mode-bar"><span>HAND TRACKING</span><b id="handStatus">Waiting for headset</b><span>ROBOT</span><b id="robotName">Checking…</b></div>
+    <div class="endpoint-box" style="text-align:center"><span class="glyph">◉</span> <strong>AUTO-CONNECT TO XGO</strong><p id="autoStatus" style="color:#adceec;margin:10px 0 4px">Looking for robot…</p></div>
+    <input type="hidden" id="apiBase"><input type="hidden" id="pairPin">
+    <button hidden id="saveEndpoint"></button><button hidden id="pairBtn"></button>
+    <div class="buttons"><button id="enterXR" class="primary" disabled><span class="star">✧</span> ENTER PASSTHROUGH PILOT <span class="arrow">↗</span></button></div>
+    <div id="message" class="message" role="status">Starting automatic connection…</div>
+  </section>
+  <section class="section-head"><h3>CONTROL LANGUAGE</h3><p>Designed for quick demonstrations and easy-to-remember gestures.</p></section>
+  <section class="gesture-grid">
+    <article class="gesture"><div class="gesture-icon">🤏</div><div class="gesture-title">LEFT PINCH</div><strong>Hold to activate</strong><p>Hold thumb and index finger together on the left hand as a dead-man switch. Release = stop.</p></article>
+    <article class="gesture"><div class="gesture-icon">👆</div><div class="gesture-title">RIGHT INDEX</div><strong>Point to drive</strong><p>Point away from you for forward, toward the floor for back, and to either side to turn.</p></article>
+    <article class="gesture"><div class="gesture-icon">✋</div><div class="gesture-title">OPEN RIGHT PALM</div><strong>Neutral / hold</strong><p>Open your right hand or close it into a fist to pause movement, even while left pinch is held.</p></article>
+    <article class="gesture"><div class="gesture-icon">👐</div><div class="gesture-title">BOTH PALMS OPEN</div><strong>Emergency stop</strong><p>Hold both palms open for one second to latch the emergency stop; resume from this page.</p></article>
+  </section>
+  <section class="dashboard">
+    <div class="panel safety-panel"><div class="section-title">SAFETY CONTROL</div><div class="status-row"><div><span class="meta">CURRENT ROBOT STATE</span><strong id="safetyLabel">UNKNOWN</strong></div><div><span class="meta">BATTERY</span><strong id="batteryLabel">—</strong></div></div>
+      <button id="stopBtn" class="danger">■ EMERGENCY STOP</button><button id="resumeBtn" class="secondary full">RESUME AFTER STOP</button>
+      <p class="caption">Safety: robot stops after missed commands (server deadman ~0.55 s). Test at low speed on a clear floor. The Quest wearer must remain stationary.</p></div>
+    <div class="panel test-panel"><div class="section-title">DESKTOP GESTURE PREVIEW</div><p class="caption">Practice controls before wearing the headset. Preview is local only until explicitly enabled.</p>
+      <label class="toggle"><input id="testLive" type="checkbox"><span>Enable sending preview commands to the robot</span></label>
+      <div class="direction-grid"><button data-drive="forward">↑ <small>FORWARD</small></button><button data-drive="left">← <small>LEFT</small></button><button data-drive="hold" class="hold">● <small>STOP</small></button><button data-drive="right">→ <small>RIGHT</small></button><button data-drive="backward" class="wide">↓ <small>BACK</small></button></div>
+      <p id="previewState" class="preview-state">PREVIEW IDLE</p>
+    </div>
+  </section>
+  <div class="footer"><span>GITHUB PAGES · ONE-CLICK DEMO · PILOT MUST BE NEAR ROBOT</span><span>Prototype · No cloud video upload</span></div>
+</main>
+<canvas id="xrCanvas" aria-hidden="true"></canvas><script type="module" src="./static/vr.js?v=2"></script>
+</body></html>
