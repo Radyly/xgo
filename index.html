@@ -27,6 +27,11 @@
   .tag{position:absolute;text-align:center;font-weight:700;font-size:13px;letter-spacing:.3px}
   .foot{position:absolute;left:0;top:712px;width:1333px;height:38px;background:var(--navy)}
   .foot span{position:absolute;top:0;height:38px;line-height:38px;font-weight:700;font-size:13px}
+  .ctrl{position:fixed;right:16px;bottom:16px;display:flex;gap:8px;z-index:10;transition:opacity .4s}
+  .ctrl.hide{opacity:0;pointer-events:none}
+  .ctrl button{font:700 14px Calibri,Carlito,"Segoe UI",Roboto,Arial,sans-serif;color:#fff;background:rgba(27,54,104,.92);
+       border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:10px 18px;cursor:pointer}
+  .ctrl button:hover{background:#2563EB}
 </style>
 </head>
 <body>
@@ -70,6 +75,11 @@
   </footer>
 </main>
 
+<div class="ctrl" id="ctrl">
+  <button id="btnReplay" type="button">&#8635; Replay</button>
+  <button id="btnFull" type="button">&#9974; Full screen</button>
+</div>
+
 <script>
   // Scale the 1333x750 slide to fit the window
   const stage = document.getElementById('stage');
@@ -79,18 +89,29 @@
   }
   addEventListener('resize', fit); fit();
 
-  // F = fullscreen toggle (handy on the kiosk screen)
-  addEventListener('keydown', e => {
-    if (e.key.toLowerCase() === 'f'){
-      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
-    }
-  });
-
   // Keep videos looping even if the browser pauses them (kiosk standby)
   const vids = document.querySelectorAll('video');
   const kick = () => vids.forEach(v => v.paused && v.play().catch(()=>{}));
   document.addEventListener('visibilitychange', kick);
   setInterval(kick, 5000);
+
+  // Replay: restart all videos from the beginning
+  function replay(){ vids.forEach(v => { v.currentTime = 0; v.play().catch(()=>{}); }); }
+  function toggleFull(){
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  }
+  document.getElementById('btnReplay').onclick = replay;
+  document.getElementById('btnFull').onclick = toggleFull;
+
+  // Auto-hide buttons after 3s of no movement (shows again on touch/move)
+  const ctrl = document.getElementById('ctrl');
+  let hideT;
+  function showCtrl(){
+    ctrl.classList.remove('hide'); clearTimeout(hideT);
+    hideT = setTimeout(() => ctrl.classList.add('hide'), 3000);
+  }
+  ['mousemove','touchstart','click'].forEach(ev => addEventListener(ev, showCtrl));
+  showCtrl();
 </script>
 </body>
 </html>
