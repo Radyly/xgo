@@ -1,8 +1,96 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#081426"><title>XGO Mini | Hand Pilot</title><link rel="stylesheet" href="./static/app.css?v=4"><script src="./static/app.js?v=4" defer></script></head><body>
-<div class="shell"><header class="top"><div class="brand"><div class="brand-mark">X<span>G</span>O</div><div><b>HAND PILOT</b><small>QUEST 3 · ROBOT CONTROL</small></div></div><span id="linkPill" class="pill off"><span class="dot"></span><span id="linkLabel">FINDING ROBOT</span></span></header>
-<section class="hero"><div class="eyebrow">AUPP ETL · INTERACTIVE ROBOTICS</div><h1>Make the dog <em>move.</em></h1><p>Test actual motor commands first. Hand tracking is optional—not required to control the dog.</p></section>
-<section class="main"><div class="left"><section class="panel status-panel"><div class="panel-title"><span>01 / LIVE ROBOT STATUS</span><span id="mode">STANDBY</span></div><div class="stat-grid"><div><label>CONNECTION</label><strong id="connection">Searching…</strong></div><div><label>BATTERY</label><strong id="battery">—</strong></div><div><label>ROBOT</label><strong id="model">—</strong></div><div><label>SERIAL COMMAND</label><strong id="motor">—</strong></div></div><div class="signal"><div class="signal-mark" id="signalMark">●</div><div><b id="motionLabel">STOPPED</b><small id="motionNote">Motor status will appear after pairing.</small></div></div><div class="feedback">The displayed direction confirms a command was written to the robot controller, <b>not</b> independently measured movement. Observe the dog physically during testing.</div></section>
-<section class="panel guide"><div class="panel-title"><span>02 / CONNECTION</span><span id="latency">— ms</span></div><div id="connectionHelp" class="help">Looking for your Raspberry Pi tunnel…</div><button id="connectBtn" class="primary">CONNECT TO XGO</button><button id="disconnectBtn" class="secondary" hidden>RELEASE CONTROL / SWITCH DEVICE</button><div id="message" role="status" aria-live="polite" class="message">Website ready. Robot connection is being checked.</div></section></div>
-<div class="right"><section class="panel drive-panel"><div class="panel-title"><span>03 / TEST REAL MOVEMENT</span><span class="live-tag">PRESS & HOLD</span></div><h2>Drive controller</h2><p class="muted">With the robot on a clear floor, hold a direction. Release your finger to stop. Commands automatically stop if the connection is lost.</p><div id="direction" class="direction">NO MOTION</div><div class="pad"><button class="drive forward" data-direction="FORWARD" aria-label="Hold to move forward">↑ <span>FORWARD</span></button><button class="drive left" data-direction="LEFT" aria-label="Hold to turn left">← <span>LEFT</span></button><div class="pad-center"><div class="circle">XGO</div></div><button class="drive right" data-direction="RIGHT" aria-label="Hold to turn right">→ <span>RIGHT</span></button><button class="drive back" data-direction="BACK" aria-label="Hold to move backward">↓ <span>BACK</span></button></div><div class="actions"><button id="stop" class="danger">■ EMERGENCY STOP</button><button id="reset" class="secondary">RESET STOP</button></div></section>
-<section class="panel vr-panel"><div class="panel-title"><span>04 / OPTIONAL QUEST HAND TRACKING</span><span id="xrBadge">CHECKING</span></div><h2>See the real dog in passthrough</h2><p class="muted">A small floating HUD shows <b>ARMED / STOP / FORWARD / BACK / TURN</b>. No virtual world and no full-screen black panel.</p><div class="gesture"><div><div class="gesture-symbol">✊</div><b>LEFT FIST</b><small>Hold to arm</small></div><div><div class="gesture-symbol">☝</div><b>RIGHT INDEX</b><small>Point forward / down / left / right</small></div></div><button id="enterXR" class="outline" disabled>ENTER QUEST PASSTHROUGH</button><p id="xrHelp" class="hint">Checking headset support…</p></section></div></section>
-<footer><span>XGO MINI · PILOT V4</span><span>15-minute demo · low-speed · deadman stop · supervised use</span></footer></div><canvas id="xrCanvas" aria-hidden="true"></canvas></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUPP – ETL Robotics &amp; AI Showcase | FrancoTech</title>
+<meta name="description" content="AUPP Emerging Technology Lab (ETL) standby showcase for the FrancoTech Experience Zone.">
+<style>
+  :root{
+    --navy:#1B3668; --blue:#2563EB; --red:#C8102E; --teal:#0F766E;
+    --ink:#0F172A; --muted:#475569; --border:#DCE3EC; --slate:#CBD5E1;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#0b1220;overflow:hidden}
+  body{display:flex;align-items:center;justify-content:center;
+       font-family:Calibri,Carlito,"Segoe UI",Roboto,Arial,sans-serif}
+  /* Slide is designed at 1333 x 750 and scaled to fit any screen */
+  #stage{position:relative;width:1333px;height:750px;background:#fff;flex:none;
+         transform-origin:center center;overflow:hidden}
+  .abs{position:absolute}
+  .pill{position:absolute;display:flex;align-items:center;border-radius:999px;
+        font-weight:700;font-size:13px;letter-spacing:.2px;padding:0 14px;white-space:nowrap}
+  .card{position:absolute;background:#fff;border:1px solid var(--border);border-radius:14px}
+  video{position:absolute;object-fit:cover;background:#111;display:block}
+  .name{position:absolute;font-weight:700;color:var(--ink);white-space:nowrap}
+  .desc{position:absolute;color:var(--muted);line-height:1.3}
+  .tag{position:absolute;text-align:center;font-weight:700;font-size:13px;letter-spacing:.3px}
+  .foot{position:absolute;left:0;top:712px;width:1333px;height:38px;background:var(--navy)}
+  .foot span{position:absolute;top:0;height:38px;line-height:38px;font-weight:700;font-size:13px}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="AUPP ETL Robotics and AI Showcase">
+
+  <!-- Header -->
+  <div class="abs" style="left:0;top:0;width:1333px;height:96px;background:#fff"></div>
+  <div class="abs" style="left:0;top:96px;width:1333px;height:4px;background:var(--navy)"></div>
+  <div class="pill" style="left:45px;top:14px;width:325px;height:25px;justify-content:center;background:#EFF6FF;color:var(--blue);font-size:12.5px">EX-09 &nbsp;·&nbsp; FRANCOTECH EXPERIENCE ZONE</div>
+  <h1 class="abs" style="left:45px;top:42px;width:850px;height:46px;line-height:46px;text-align:center;font-size:33px;color:var(--navy);font-weight:700">AUPP – ETL Robotics &amp; AI Showcase</h1>
+  <img class="abs" src="assets/aupp-logo.png" alt="American University of Phnom Penh" style="left:995px;top:11px;width:275px;height:74px">
+
+  <!-- Card 1 : XGO -->
+  <section class="card" style="left:45px;top:114px;width:895px;height:283px"></section>
+  <video src="assets/xgo-mini.mp4" poster="assets/xgo-mini.jpg" autoplay muted loop playsinline preload="auto" style="left:57px;top:125px;width:464px;height:261px"></video>
+  <div class="pill" style="left:549px;top:140px;width:369px;height:28px;background:#EFF6FF;color:var(--blue)">01 &nbsp;·&nbsp; HAND-GESTURE &amp; VR CONTROL</div>
+  <h2 class="name" style="left:549px;top:180px;font-size:29px;line-height:45px">XGO Mini Robot</h2>
+  <p class="desc" style="left:549px;top:232px;width:369px;font-size:18.5px">Quadruped robot controlled via hand gestures &amp; VR headset in Python 3.</p>
+  <div class="tag" style="left:549px;top:357px;width:369px;color:var(--blue)">LIVE INTERACTION &nbsp;·&nbsp; AUTO-LOOP</div>
+
+  <!-- Card 2 : TurtleBot 4 -->
+  <section class="card" style="left:45px;top:415px;width:895px;height:283px"></section>
+  <video src="assets/turtlebot4.mp4" poster="assets/turtlebot4.jpg" autoplay muted loop playsinline preload="auto" style="left:57px;top:426px;width:464px;height:261px"></video>
+  <div class="pill" style="left:549px;top:441px;width:369px;height:28px;background:#FEF2F2;color:var(--red)">02 &nbsp;·&nbsp; AUTONOMOUS NAVIGATION &amp; YOLO</div>
+  <h2 class="name" style="left:549px;top:481px;font-size:29px;line-height:45px">TurtleBot 4</h2>
+  <p class="desc" style="left:549px;top:533px;width:369px;font-size:18.5px">ROS 2 LiDAR SLAM navigation with real-time YOLO human detection &amp; following.</p>
+  <div class="tag" style="left:549px;top:658px;width:369px;color:var(--red)">ROS 2 &nbsp;·&nbsp; YOLO &nbsp;·&nbsp; AUTO-LOOP</div>
+
+  <!-- Card 3 : TurtleBot 3 -->
+  <section class="card" style="left:960px;top:114px;width:328px;height:584px"></section>
+  <div class="pill" style="left:978px;top:130px;width:292px;height:28px;justify-content:center;background:#F0FDFA;color:var(--teal)">03 &nbsp;·&nbsp; ROS 2 SLAM &amp; MAPPING</div>
+  <h2 class="name" style="left:978px;top:164px;width:292px;text-align:center;font-size:27.5px;line-height:38px">TurtleBot 3</h2>
+  <video src="assets/turtlebot3.mp4" poster="assets/turtlebot3.jpg" autoplay muted loop playsinline preload="auto" style="left:1010px;top:208px;width:228px;height:405px"></video>
+  <p class="desc" style="left:978px;top:618px;width:292px;font-size:17.4px;line-height:1.2">Autonomous mapping &amp; live RViz visualization.</p>
+  <div class="tag" style="left:978px;top:668px;width:292px;color:var(--teal)">LIDAR SLAM &nbsp;·&nbsp; AUTO-LOOP</div>
+
+  <!-- Footer -->
+  <footer class="foot">
+    <span style="left:45px;color:#fff">AMERICAN UNIVERSITY OF PHNOM PENH &nbsp;·&nbsp; EMERGING TECHNOLOGY LAB (ETL)</span>
+    <span style="right:45px;color:var(--slate);text-align:right">FRANCOTECH &nbsp;·&nbsp; EXPERIENCE ZONE STANDBY</span>
+  </footer>
+</main>
+
+<script>
+  // Scale the 1333x750 slide to fit the window
+  const stage = document.getElementById('stage');
+  function fit(){
+    const s = Math.min(innerWidth/1333, innerHeight/750);
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  addEventListener('resize', fit); fit();
+
+  // F = fullscreen toggle (handy on the kiosk screen)
+  addEventListener('keydown', e => {
+    if (e.key.toLowerCase() === 'f'){
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    }
+  });
+
+  // Keep videos looping even if the browser pauses them (kiosk standby)
+  const vids = document.querySelectorAll('video');
+  const kick = () => vids.forEach(v => v.paused && v.play().catch(()=>{}));
+  document.addEventListener('visibilitychange', kick);
+  setInterval(kick, 5000);
+</script>
+</body>
+</html>
